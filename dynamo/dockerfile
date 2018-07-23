@@ -1,5 +1,5 @@
 FROM openjdk:8
-MAINTAINER Seshan <cloud-ops@centos.org>
+MAINTAINER Seshan
 EXPOSE 8000
 
 ENV dynamo_build=dynamodb_local_latest.tar.gz
