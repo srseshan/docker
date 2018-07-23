@@ -1,0 +1,36 @@
+FROM centos:centos7
+MAINTAINER Ramaseshan_Srinivasan
+
+RUN yum -y update; yum clean all
+# Compilers and related tools:
+RUN yum groupinstall -y "development tools"
+# Libraries needed during compilation to enable all features of Python:
+RUN yum install -y zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel expat-devel
+# If you are on a clean "minimal" install of CentOS you also need the wget tool:
+RUN yum install -y wget
+RUN yum -y install libffi-devel 
+
+#install python
+ENV PYTHON_BUILD_VERSION="3.6.6"
+ENV PYTHON_MAJOR_VERSION="3.6"
+RUN wget https://python.org/ftp/python/$PYTHON_BUILD_VERSION/Python-$PYTHON_BUILD_VERSION.tar.xz
+RUN tar -xvf Python-$PYTHON_BUILD_VERSION.tar.xz
+RUN mkdir /opt/python3
+RUN cd Python-$PYTHON_BUILD_VERSION && ./configure --prefix=/opt/python3 && make && make altinstall
+RUN ln -s /opt/python3/bin/python$PYTHON_MAJOR_VERSION /usr/bin/python$PYTHON_MAJOR_VERSION
+RUN ln -s /opt/python3/bin/pip$PYTHON_MAJOR_VERSION /usr/bin/pip$PYTHON_MAJOR_VERSION
+
+RUN cd .. && rm -rf Python-$PYTHON_BUILD_VERSION && rm -rf Python-$PYTHON_BUILD_VERSION.tar.xz
+
+#install aws and aws shell
+RUN pip$PYTHON_MAJOR_VERSION install --upgrade pip
+RUN pip$PYTHON_MAJOR_VERSION install awscli --upgrade --user
+RUN pip$PYTHON_MAJOR_VERSION install --upgrade aws-shell
+#RUN pip$PYTHON_MAJOR_VERSION install --upgrade aws-sam-cli
+
+#set environment paths
+ENV PATH="${PATH}:~/.local/bin:"
+RUN ln -s /opt/python3/bin/aws-shell /usr/bin/aws-shell
+RUN yum -y install net-tools
+RUN aws --version
+ENTRYPOINT /bin/bash
