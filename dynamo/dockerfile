@@ -1,0 +1,14 @@
+FROM openjdk:8
+MAINTAINER Seshan <cloud-ops@centos.org>
+EXPOSE 8000
+
+ENV dynamo_build=dynamodb_local_latest.tar.gz
+
+#download dynamodb
+RUN apt-get -y install curl
+RUN mkdir -p /var/dynamodb_local
+WORKDIR /var/dynamodb_local 
+RUN curl -X GET https://s3-us-west-2.amazonaws.com/dynamodb-local/$dynamo_build --output $dynamo_build
+RUN tar -xvf $dynamo_build
+ENTRYPOINT ["java","-Djava.library.path=./DynamoDBLocal_lib","-jar","DynamoDBLocal.jar","-sharedDb"]
+
